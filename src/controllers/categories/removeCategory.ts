@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { verifyToken } from "../../helper/verifyToken";
 import Category from "../../models/category";
 import Task from "../../models/task";
+import User from "../../models/user";
 
 export const removeCategory = async (
 	req: Request,
@@ -47,6 +48,13 @@ export const removeCategory = async (
 		}
 
 		await Category.deleteOne({ _id: categoryId });
+
+		await User.updateOne(
+			{ email: user.email },
+			{
+				$pull: { completedTasks: categoryId },
+			}
+		);
 
 		const categoryTasks = await Task.find({ categories: categoryId });
 

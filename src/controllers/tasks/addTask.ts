@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ITask } from "../../types/task.types";
 import Task from "../../models/task";
 import { verifyToken } from "../../helper/verifyToken";
+import Category from "../../models/category";
 
 export const addTask = async (req: Request, res: Response): Promise<void> => {
 	try {
@@ -24,6 +25,19 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
 
 		const task = await Task.findOne({ name, description }).exec();
 
+		const category = await Category.findOne({ _id: categories[0] });
+
+		if (!category) {
+			res.status(404).json({
+				errors: [
+					{
+						msg: "There is no category to assigned this task to it.",
+					},
+				],
+			});
+			return;
+		}
+
 		const duplicatedCategory = task?.categories.includes(categories);
 
 		if (duplicatedCategory && task) {
@@ -43,7 +57,7 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
 				}
 			);
 
-			res.status(201).json({
+			res.json({
 				msg: "The task has been assigned to this category.",
 				task,
 			});
