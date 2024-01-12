@@ -3,9 +3,10 @@
 	"name": "todo-task-backend",
 	"version": "1.0.0",
 	"description": "the backend of a todo-task",
-	"main": "concurrently \"tsc -w\" \"nodemon src/app.ts\"",
+	"main": "dist/app.js",
 	"scripts": {
 		"build": "tsc",
+		"start": "node dist/app.js",
 		"start:dev": "concurrently \"tsc -w\" \"nodemon src/app.ts\""
 	},
 	"author": "abdSabour",
