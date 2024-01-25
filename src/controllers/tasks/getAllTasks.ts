@@ -1,11 +1,8 @@
 import { Request, Response } from "express";
 import Task from "../../models/task";
+import asyncWrapper from "../../middleware/asyncWrapper";
 
-export const getAllTasks = async (req: Request, res: Response) => {
-	try {
-		const tasks = await Task.find();
-		res.status(200).json(tasks);
-	} catch (error) {
-		throw error;
-	}
-};
+export const getAllTasks = asyncWrapper(async (req: Request, res: Response) => {
+	const tasks = await Task.find();
+	res.status(200).json(tasks);
+});

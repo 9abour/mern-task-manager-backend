@@ -1,6 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import User from "../../models/user";
 import { verifyToken } from "../../helper/verifyToken";
+import asyncWrapper from "../../middleware/asyncWrapper";
+import AppError from "../../helper/appError";
 
 /**
  * Retrieves user information based on the provided request.
@@ -10,18 +12,16 @@ import { verifyToken } from "../../helper/verifyToken";
  * @return {Promise<void>} - A promise that resolves when the user information has been sent or rejects if an error occurs.
  */
 
-export const getUser = async (req: Request, res: Response): Promise<void> => {
-	try {
+export const getUser = asyncWrapper(
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		const token = req.headers["authorization"];
 
 		if (!token) {
-			res.status(404).json({
-				errors: [
-					{
-						msg: "Token not provided!",
-					},
-				],
+			const error = new AppError({
+				code: 404,
+				message: "There is no token!",
 			});
+			next(error);
 			return;
 		}
 
@@ -30,13 +30,11 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
 		const user = await User.findOne({ email });
 
 		if (!user) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "Unauthenticated!",
-					},
-				],
+			const error = new AppError({
+				code: 401,
+				message: "Unauthenticated!",
 			});
+			next(error);
 			return;
 		}
 
@@ -49,7 +47,5 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
 			completedTasks,
 			xp,
 		});
-	} catch (error) {
-		throw error;
 	}
-};
+);

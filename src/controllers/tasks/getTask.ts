@@ -1,17 +1,23 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import Task from "../../models/task";
 import { ITask } from "../../types/task.types";
+import asyncWrapper from "../../middleware/asyncWrapper";
+import AppError from "../../helper/appError";
 
-export const getTask = async (req: Request, res: Response) => {
-	try {
+export const getTask = asyncWrapper(
+	async (req: Request, res: Response, next: NextFunction) => {
 		const { taskId } = req.params;
 		const task: ITask | null = await Task.findById(taskId);
 
+		if (!task) {
+			const error = new AppError({
+				code: 404,
+				message: "The task not found!",
+			});
+			next(error);
+			return;
+		}
+
 		res.status(200).json(task);
-	} catch (error) {
-		res.status(404).json({
-			msg: "The task not found!",
-		});
-		throw error;
 	}
-};
+);

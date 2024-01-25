@@ -1,12 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ICategory } from "../../types/category.types";
 import Category from "../../models/category";
+import AppError from "../../helper/appError";
+import asyncWrapper from "../../middleware/asyncWrapper";
 
-export const addCategory = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	try {
+export const addCategory = asyncWrapper(
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		const dataPayload = req.body as Pick<ICategory, "name" | "description">;
 
 		const { name, description } = dataPayload;
@@ -14,13 +13,11 @@ export const addCategory = async (
 		const category = await Category.findOne({ name }).exec();
 
 		if (category) {
-			res.status(409).json({
-				errors: [
-					{
-						msg: "The category already exists!",
-					},
-				],
+			const error = new AppError({
+				code: 409,
+				message: "The category already exists!",
 			});
+			next(error);
 			return;
 		}
 
@@ -31,10 +28,8 @@ export const addCategory = async (
 		}).save();
 
 		res.status(201).json({
-			msg: "The category has been created.",
+			message: "The category has been created.",
 			category: newCategory,
 		});
-	} catch (error) {
-		throw error;
 	}
-};
+);

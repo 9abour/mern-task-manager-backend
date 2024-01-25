@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
-import { filterCategoryTasksCount } from "./filterCategoryTasksCount";
+import { filterCategoryTasksCount } from "../../helper/filterCategoryTasksCount";
+import asyncWrapper from "../../middleware/asyncWrapper";
 
-export const getCategoryTasksCount = async (req: Request, res: Response) => {
-	try {
+export const getCategoryTasksCount = asyncWrapper(
+	async (req: Request, res: Response) => {
 		const { categoryId } = req.params;
 
 		const { tasksCount, completedCount, tasksXP } =
@@ -13,7 +14,5 @@ export const getCategoryTasksCount = async (req: Request, res: Response) => {
 			completedCount,
 			tasksXP,
 		});
-	} catch (error) {
-		throw error;
 	}
-};
+);

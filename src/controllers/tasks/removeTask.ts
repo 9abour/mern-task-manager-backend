@@ -1,53 +1,42 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../../helper/verifyToken";
 import Task from "../../models/task";
 import User from "../../models/user";
 import { ITask } from "../../types/task.types";
+import asyncWrapper from "../../middleware/asyncWrapper";
+import AppError from "../../helper/appError";
 
-export const removeTask = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	try {
+export const removeTask = asyncWrapper(
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		const token = req.headers.authorization;
 		const { taskId, categoryId } = req.body;
+		const task: ITask | null = await Task.findOne({ _id: taskId });
 
 		if (!token) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "Unauthorized!",
-					},
-				],
+			const error = new AppError({
+				code: 401,
+				message: "Unauthorized!",
 			});
+			next(error);
 			return;
-		}
-
-		if (!taskId) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "The task id is missing!",
-					},
-				],
+		} else if (!taskId) {
+			const error = new AppError({
+				code: 400,
+				message: "The task id is missing!",
 			});
+			next(error);
 			return;
 		}
 
 		const user = verifyToken(token);
-
 		if (!user) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "Unauthorized!",
-					},
-				],
+			const error = new AppError({
+				code: 401,
+				message: "Unauthorized!",
 			});
+			next(error);
 			return;
 		}
-
-		const task: ITask | null = await Task.findOne({ _id: taskId });
 
 		if (task) {
 			if (task.isCompleted) {
@@ -56,13 +45,12 @@ export const removeTask = async (
 				});
 
 				if (taskOwner && taskOwner.email !== user.email) {
-					res.status(403).json({
-						errors: [
-							{
-								msg: `The task can only be deleted by the owner who completed it.`,
-							},
-						],
+					const error = new AppError({
+						code: 403,
+						message:
+							"The task can only be deleted by the owner who completed it.",
 					});
+					next(error);
 					return;
 				}
 			}
@@ -78,7 +66,7 @@ export const removeTask = async (
 			);
 
 			res.json({
-				msg: "The task has been deleted form this assigned category.",
+				message: "The task has been deleted form this assigned category.",
 			});
 
 			return;
@@ -94,9 +82,7 @@ export const removeTask = async (
 		);
 
 		res.json({
-			msg: "The task has been deleted.",
+			message: "The task has been deleted.",
 		});
-	} catch (error) {
-		throw error;
 	}
-};
+);

@@ -1,49 +1,40 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { verifyToken } from "../../helper/verifyToken";
 import Category from "../../models/category";
 import Task from "../../models/task";
 import User from "../../models/user";
+import AppError from "../../helper/appError";
+import { IUser } from "../../types/user.types";
+import asyncWrapper from "../../middleware/asyncWrapper";
 
-export const removeCategory = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	try {
-		const token = req.headers.authorization;
+export const removeCategory = asyncWrapper(
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+		const token: string | undefined = req.headers.authorization;
 		const { categoryId } = req.params;
 
 		if (!token) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "Unauthorized!",
-					},
-				],
+			const error = new AppError({
+				code: 409,
+				message: "Unauthorized!",
 			});
+			next(error);
 			return;
 		}
 
 		if (!categoryId) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "The category id is missing!",
-					},
-				],
+			const error = new AppError({
+				code: 401,
+				message: "The category id is missing!",
 			});
+			next(error);
 			return;
 		}
 
-		const user = verifyToken(token);
+		const user: IUser = verifyToken(token);
 
 		if (!user) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "Unauthorized!",
-					},
-				],
-			});
+			const error = new AppError({ code: 401, message: "Unauthorized!" });
+			next(error);
 			return;
 		}
 
@@ -73,9 +64,7 @@ export const removeCategory = async (
 		});
 
 		res.json({
-			msg: "The category has been deleted.",
+			message: "The category has been deleted.",
 		});
-	} catch (error) {
-		throw error;
 	}
-};
+);

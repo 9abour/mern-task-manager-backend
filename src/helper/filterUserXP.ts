@@ -1,5 +1,5 @@
-import Tasks from "../../models/task";
-import { ITask } from "../../types/task.types";
+import Tasks from "../models/task";
+import { ITask } from "../types/task.types";
 
 /**
  * Filters the user's XP based on the completed tasks.

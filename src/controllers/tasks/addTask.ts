@@ -1,11 +1,13 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ITask } from "../../types/task.types";
 import Task from "../../models/task";
 import { verifyToken } from "../../helper/verifyToken";
 import Category from "../../models/category";
+import asyncWrapper from "../../middleware/asyncWrapper";
+import AppError from "../../helper/appError";
 
-export const addTask = async (req: Request, res: Response): Promise<void> => {
-	try {
+export const addTask = asyncWrapper(
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		const dataPayload = req.body;
 
 		const token = req.headers.authorization;
@@ -14,7 +16,7 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
 			res.status(401).json({
 				errors: [
 					{
-						msg: "Unauthorized!",
+						message: "Unauthorized!",
 					},
 				],
 			});
@@ -28,26 +30,22 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
 		const category = await Category.findOne({ _id: categories[0] });
 
 		if (!category) {
-			res.status(404).json({
-				errors: [
-					{
-						msg: "There is no category to assigned this task to it.",
-					},
-				],
+			const error = new AppError({
+				code: 409,
+				message: "There is no category to assigned this task to it.",
 			});
+			next(error);
 			return;
 		}
 
 		const duplicatedCategory = task?.categories.includes(categories);
 
 		if (duplicatedCategory && task) {
-			res.status(409).json({
-				errors: [
-					{
-						msg: "The task already exists!",
-					},
-				],
+			const error = new AppError({
+				code: 409,
+				message: "The task already exists!",
 			});
+			next(error);
 			return;
 		} else if (task && !duplicatedCategory) {
 			await Task.updateOne(
@@ -58,7 +56,7 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
 			);
 
 			res.json({
-				msg: "The task has been assigned to this category.",
+				message: "The task has been assigned to this category.",
 				task,
 			});
 			return;
@@ -73,11 +71,8 @@ export const addTask = async (req: Request, res: Response): Promise<void> => {
 		}).save();
 
 		res.status(201).json({
-			msg: "The task has been added.",
+			message: "The task has been added.",
 			task: newTask,
 		});
-		return;
-	} catch (error) {
-		throw error;
 	}
-};
+);

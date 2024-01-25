@@ -1,54 +1,33 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import Task from "../../models/task";
 import User from "../../models/user";
 import { verifyToken } from "../../helper/verifyToken";
 import { toggleUserCompletedTask } from "../user/toggleUserCompletedTask";
+import asyncWrapper from "../../middleware/asyncWrapper";
+import AppError from "../../helper/appError";
 
-export const toggleTask = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	try {
+export const toggleTask = asyncWrapper(
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		const token = req.headers.authorization;
 
 		if (!token) {
-			res.status(404).json({
-				errors: [
-					{
-						msg: "There is no token!",
-					},
-				],
+			const error = new AppError({
+				code: 404,
+				message: "There is no token!",
 			});
+			next(error);
 			return;
 		}
-
-		const allowedUser = verifyToken(token);
-
-		if (!allowedUser) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "Unauthenticated!",
-					},
-				],
-			});
-			return;
-		}
-
-		const { taskId } = req.params;
 
 		const user = verifyToken(token);
 
 		if (!user) {
-			res.status(401).json({
-				errors: [
-					{
-						msg: "Unauthenticated!",
-					},
-				],
-			});
+			const error = new AppError({ code: 401, message: "Unauthenticated!" });
+			next(error);
 			return;
 		}
+
+		const { taskId } = req.params;
 
 		const task = await Task.findOne({ _id: taskId });
 
@@ -59,13 +38,12 @@ export const toggleTask = async (
 				});
 
 				if (taskOwner?.email !== user.email) {
-					res.status(403).json({
-						errors: [
-							{
-								msg: `The task can only be unchecked by the owner who completed it.`,
-							},
-						],
+					const error = new AppError({
+						code: 403,
+						message:
+							"The task can only be unchecked by the owner who completed it.",
 					});
+					next(error);
 					return;
 				}
 			}
@@ -80,10 +58,10 @@ export const toggleTask = async (
 			);
 
 			res.json({
-				msg: `The task is ${!task.isCompleted ? "finished." : "unfinished."}`,
+				message: `The task is ${
+					!task.isCompleted ? "finished." : "unfinished."
+				}`,
 			});
 		}
-	} catch (error) {
-		throw error;
 	}
-};
+);

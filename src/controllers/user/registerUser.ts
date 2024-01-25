@@ -1,6 +1,8 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import User from "../../models/user";
 import bcrypt from "bcrypt";
+import AppError from "../../helper/appError";
+import asyncWrapper from "../../middleware/asyncWrapper";
 
 /**
  * Registers a new user.
@@ -10,23 +12,18 @@ import bcrypt from "bcrypt";
  * @return {Promise<void>} - A promise that resolves to void.
  */
 
-export const registerUser = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	try {
+export const registerUser = asyncWrapper(
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		const { name, email, password } = req.body;
 
 		const user = await User.findOne({ email }).exec();
 
 		if (user) {
-			res.status(409).json({
-				errors: [
-					{
-						msg: "The user already exists!",
-					},
-				],
+			const error = new AppError({
+				code: 404,
+				message: "The user already exists!",
 			});
+			next(error);
 			return;
 		}
 
@@ -46,11 +43,9 @@ export const registerUser = async (
 
 				newUser.save();
 				res.status(201).json({
-					msg: "The user has been created.",
+					message: "The user has been created.",
 				});
 			});
 		});
-	} catch (error) {
-		throw error;
 	}
-};
+);
