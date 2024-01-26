@@ -10,9 +10,10 @@ import { IUser } from "../types/user.types";
  */
 
 dotenv.config();
+
 const secretKey: string = process.env.JWT_SECRET_KEY || "";
 
-export const verifyToken = (token: string): IUser => {
+export const getUserInfo = (token: string): IUser => {
 	const decode = jwt.verify(token.split(" ")[1], secretKey);
 
 	return decode as IUser;

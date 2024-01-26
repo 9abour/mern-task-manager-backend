@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ITask } from "../../types/task.types";
 import Task from "../../models/task";
-import { verifyToken } from "../../helper/verifyToken";
 import Category from "../../models/category";
 import asyncWrapper from "../../middleware/asyncWrapper";
 import AppError from "../../helper/appError";
@@ -9,19 +8,6 @@ import AppError from "../../helper/appError";
 export const addTask = asyncWrapper(
 	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		const dataPayload = req.body;
-
-		const token = req.headers.authorization;
-
-		if (!token || !verifyToken(token)) {
-			res.status(401).json({
-				errors: [
-					{
-						message: "Unauthorized!",
-					},
-				],
-			});
-			return;
-		}
 
 		const { name, description, categories, xp } = dataPayload;
 
@@ -34,8 +20,7 @@ export const addTask = asyncWrapper(
 				code: 409,
 				message: "There is no category to assigned this task to it.",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
 		const duplicatedCategory = task?.categories.includes(categories);
@@ -45,8 +30,7 @@ export const addTask = asyncWrapper(
 				code: 409,
 				message: "The task already exists!",
 			});
-			next(error);
-			return;
+			return next(error);
 		} else if (task && !duplicatedCategory) {
 			await Task.updateOne(
 				{ name, description },

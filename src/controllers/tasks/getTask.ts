@@ -14,8 +14,7 @@ export const getTask = asyncWrapper(
 				code: 404,
 				message: "The task not found!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
 		res.status(200).json(task);

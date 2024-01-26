@@ -9,16 +9,18 @@ import {
 	handleValidationErrors,
 	validateAddCategoryRules,
 } from "../../middleware/validation/validationMiddleware";
+import { verifyToken } from "../../middleware/verifyToken";
 
 const categoryRouter = Router();
 
 categoryRouter.post(
 	"/categories",
+	verifyToken,
 	validateAddCategoryRules,
 	handleValidationErrors,
 	addCategory
 );
-categoryRouter.delete("/categories/:categoryId", removeCategory);
+categoryRouter.delete("/categories/:categoryId", verifyToken, removeCategory);
 categoryRouter.get("/categories", getAllCategories);
 categoryRouter.get("/categories/tasks/:categoryId", getCategoryTasks);
 categoryRouter.get("/categories/tasksCount/:categoryId", getCategoryTasksCount);

@@ -34,8 +34,7 @@ export const signinUser = async (
 			code: 401,
 			message: "Wrong email!",
 		});
-		next(error);
-		return;
+		return next(error);
 	}
 
 	const passwordMatch = await bcrypt.compare(password, user.password);
@@ -45,11 +44,10 @@ export const signinUser = async (
 			code: 401,
 			message: "Wrong password!",
 		});
-		next(error);
-		return;
+		return next(error);
 	}
 
 	const token = jwt.sign(dataPayload, secretKey);
 
-	res.json(token);
+	return res.json(token);
 };

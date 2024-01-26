@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { verifyToken } from "../../helper/verifyToken";
+import { getUserInfo } from "../../helper/getUserInfo";
 import Category from "../../models/category";
 import Task from "../../models/task";
 import User from "../../models/user";
@@ -17,8 +17,7 @@ export const removeCategory = asyncWrapper(
 				code: 409,
 				message: "Unauthorized!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
 		if (!categoryId) {
@@ -26,16 +25,14 @@ export const removeCategory = asyncWrapper(
 				code: 401,
 				message: "The category id is missing!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
-		const user: IUser = verifyToken(token);
+		const user: IUser = getUserInfo(token);
 
 		if (!user) {
 			const error = new AppError({ code: 401, message: "Unauthorized!" });
-			next(error);
-			return;
+			return next(error);
 		}
 
 		await Category.deleteOne({ _id: categoryId });

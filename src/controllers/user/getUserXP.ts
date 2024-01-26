@@ -15,8 +15,7 @@ export const getTotalUserXP = asyncWrapper(
 				code: 404,
 				message: "User not found!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
 		const { completedTasks, xp } = user;

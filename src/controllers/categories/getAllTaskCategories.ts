@@ -15,8 +15,7 @@ export const getAllTaskCategories = asyncWrapper(
 				code: 409,
 				message: "Task not found.",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
 		const categoryIds = task.categories;

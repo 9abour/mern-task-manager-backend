@@ -17,8 +17,7 @@ export const addCategory = asyncWrapper(
 				code: 409,
 				message: "The category already exists!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
 		const newCategory = await new Category({

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import User from "../../models/user";
-import { verifyToken } from "../../helper/verifyToken";
+import { getUserInfo } from "../../helper/getUserInfo";
 import asyncWrapper from "../../middleware/asyncWrapper";
 import AppError from "../../helper/appError";
 
@@ -21,11 +21,10 @@ export const getUser = asyncWrapper(
 				code: 404,
 				message: "There is no token!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
-		const { email } = verifyToken(token);
+		const { email } = getUserInfo(token);
 
 		const user = await User.findOne({ email });
 
@@ -34,8 +33,7 @@ export const getUser = asyncWrapper(
 				code: 401,
 				message: "Unauthenticated!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
 		const { _id, name, completedTasks, xp } = user;

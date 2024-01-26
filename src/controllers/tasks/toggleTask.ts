@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import Task from "../../models/task";
 import User from "../../models/user";
-import { verifyToken } from "../../helper/verifyToken";
 import { toggleUserCompletedTask } from "../user/toggleUserCompletedTask";
 import asyncWrapper from "../../middleware/asyncWrapper";
 import AppError from "../../helper/appError";
+import { getUserInfo } from "../../helper/getUserInfo";
 
 export const toggleTask = asyncWrapper(
 	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -15,16 +15,14 @@ export const toggleTask = asyncWrapper(
 				code: 404,
 				message: "There is no token!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
-		const user = verifyToken(token);
+		const user = getUserInfo(token);
 
 		if (!user) {
 			const error = new AppError({ code: 401, message: "Unauthenticated!" });
-			next(error);
-			return;
+			return next(error);
 		}
 
 		const { taskId } = req.params;
@@ -43,8 +41,7 @@ export const toggleTask = asyncWrapper(
 						message:
 							"The task can only be unchecked by the owner who completed it.",
 					});
-					next(error);
-					return;
+					return next(error);
 				}
 			}
 

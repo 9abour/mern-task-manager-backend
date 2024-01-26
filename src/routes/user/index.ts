@@ -9,6 +9,7 @@ import {
 import { registerUser } from "../../controllers/user/registerUser";
 import { getUser } from "../../controllers/user/getUser";
 import { signinUser } from "../../controllers/user/signinUser";
+import { verifyToken } from "../../middleware/verifyToken";
 
 const userRouter = Router();
 
@@ -20,7 +21,7 @@ userRouter.post(
 	handleValidationErrors,
 	registerUser
 );
-userRouter.get("/whoami", getUser);
+userRouter.get("/whoami", verifyToken, getUser);
 userRouter.post(
 	"/singin",
 	validateSigninUserRules,

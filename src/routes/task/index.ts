@@ -7,23 +7,26 @@ import {
 	validateAddTaskRules,
 	validateRemoveTaskRules,
 } from "../../middleware/validation/validationMiddleware";
+import { verifyToken } from "../../middleware/verifyToken";
 
 const taskRouter = Router();
 
 taskRouter.get("/tasks", getAllTasks);
 taskRouter.post(
 	"/tasks",
+	verifyToken,
 	validateAddTaskRules,
 	handleValidationErrors,
 	addTask
 );
 taskRouter.delete(
 	"/tasks",
+	verifyToken,
 	validateRemoveTaskRules,
 	handleValidationErrors,
 	removeTask
 );
 taskRouter.get("/tasks/:taskId", getTask);
-taskRouter.post("/toggleTask/:taskId", toggleTask);
+taskRouter.post("/toggleTask/:taskId", verifyToken, toggleTask);
 
 export default taskRouter;

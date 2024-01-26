@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { verifyToken } from "../../helper/verifyToken";
 import Task from "../../models/task";
 import User from "../../models/user";
 import { ITask } from "../../types/task.types";
 import asyncWrapper from "../../middleware/asyncWrapper";
 import AppError from "../../helper/appError";
+import { getUserInfo } from "../../helper/getUserInfo";
 
 export const removeTask = asyncWrapper(
 	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -17,25 +17,22 @@ export const removeTask = asyncWrapper(
 				code: 401,
 				message: "Unauthorized!",
 			});
-			next(error);
-			return;
+			return next(error);
 		} else if (!taskId) {
 			const error = new AppError({
 				code: 400,
 				message: "The task id is missing!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
-		const user = verifyToken(token);
+		const user = getUserInfo(token);
 		if (!user) {
 			const error = new AppError({
 				code: 401,
 				message: "Unauthorized!",
 			});
-			next(error);
-			return;
+			return next(error);
 		}
 
 		if (task) {
@@ -50,8 +47,7 @@ export const removeTask = asyncWrapper(
 						message:
 							"The task can only be deleted by the owner who completed it.",
 					});
-					next(error);
-					return;
+					return next(error);
 				}
 			}
 		}
