@@ -1,24 +1,21 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import Task from "../../models/task";
 import User from "../../models/user";
 import { ITask } from "../../types/task.types";
 import asyncWrapper from "../../middleware/asyncWrapper";
 import AppError from "../../helper/appError";
-import { getUserInfo } from "../../helper/getUserInfo";
+import { IVerifyTokenRequest } from "../../types/express.types";
 
 export const removeTask = asyncWrapper(
-	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-		const token = req.headers.authorization;
+	async (
+		req: IVerifyTokenRequest,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
 		const { taskId, categoryId } = req.body;
 		const task: ITask | null = await Task.findOne({ _id: taskId });
 
-		if (!token) {
-			const error = new AppError({
-				code: 401,
-				message: "Unauthorized!",
-			});
-			return next(error);
-		} else if (!taskId) {
+		if (!taskId) {
 			const error = new AppError({
 				code: 400,
 				message: "The task id is missing!",
@@ -26,7 +23,7 @@ export const removeTask = asyncWrapper(
 			return next(error);
 		}
 
-		const user = getUserInfo(token);
+		const { user } = req;
 		if (!user) {
 			const error = new AppError({
 				code: 401,

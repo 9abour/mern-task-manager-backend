@@ -1,6 +1,8 @@
+import { IVerifyTokenRequest } from "./../types/express.types";
 import jwt from "jsonwebtoken";
 import { Request, NextFunction, Response } from "express";
 import AppError from "../helper/appError";
+import { IUser } from "../types/user.types";
 
 /**
  * Verifies a token and returns the decoded user information.
@@ -10,7 +12,7 @@ import AppError from "../helper/appError";
  */
 
 export const verifyToken = (
-	req: Request,
+	req: IVerifyTokenRequest,
 	res: Response,
 	next: NextFunction
 ) => {
@@ -29,7 +31,7 @@ export const verifyToken = (
 
 		const token = authPayload.toString().split(" ")[1];
 
-		const decode = jwt.verify(token, secretKey);
+		const decode = jwt.verify(token, secretKey) as IUser;
 
 		if (!decode) {
 			const error = new AppError({
@@ -38,6 +40,8 @@ export const verifyToken = (
 			});
 			return next(error);
 		}
+
+		req.user = decode;
 
 		next();
 	} catch (err) {

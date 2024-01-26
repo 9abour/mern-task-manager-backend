@@ -16,7 +16,7 @@ export const registerUser = asyncWrapper(
 	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		const { name, email, password } = req.body;
 
-		const user = await User.findOne({ email }).exec();
+		const user = await User.exists({ email });
 
 		if (user) {
 			const error = new AppError({

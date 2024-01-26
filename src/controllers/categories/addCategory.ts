@@ -1,12 +1,26 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { ICategory } from "../../types/category.types";
 import Category from "../../models/category";
 import AppError from "../../helper/appError";
 import asyncWrapper from "../../middleware/asyncWrapper";
+import { IVerifyTokenRequest } from "../../types/express.types";
 
 export const addCategory = asyncWrapper(
-	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	async (
+		req: IVerifyTokenRequest,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
 		const dataPayload = req.body as Pick<ICategory, "name" | "description">;
+
+		const { user } = req;
+		if (!user) {
+			const error = new AppError({
+				code: 401,
+				message: "Unauthorized!",
+			});
+			return next(error);
+		}
 
 		const { name, description } = dataPayload;
 

@@ -1,13 +1,27 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { ITask } from "../../types/task.types";
 import Task from "../../models/task";
 import Category from "../../models/category";
 import asyncWrapper from "../../middleware/asyncWrapper";
 import AppError from "../../helper/appError";
+import { IVerifyTokenRequest } from "../../types/express.types";
 
 export const addTask = asyncWrapper(
-	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	async (
+		req: IVerifyTokenRequest,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
 		const dataPayload = req.body;
+
+		const { user } = req;
+		if (!user) {
+			const error = new AppError({
+				code: 401,
+				message: "Unauthorized!",
+			});
+			return next(error);
+		}
 
 		const { name, description, categories, xp } = dataPayload;
 

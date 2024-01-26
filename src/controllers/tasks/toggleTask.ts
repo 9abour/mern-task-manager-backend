@@ -4,21 +4,15 @@ import User from "../../models/user";
 import { toggleUserCompletedTask } from "../user/toggleUserCompletedTask";
 import asyncWrapper from "../../middleware/asyncWrapper";
 import AppError from "../../helper/appError";
-import { getUserInfo } from "../../helper/getUserInfo";
+import { IVerifyTokenRequest } from "../../types/express.types";
 
 export const toggleTask = asyncWrapper(
-	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-		const token = req.headers.authorization;
-
-		if (!token) {
-			const error = new AppError({
-				code: 404,
-				message: "There is no token!",
-			});
-			return next(error);
-		}
-
-		const user = getUserInfo(token);
+	async (
+		req: IVerifyTokenRequest,
+		res: Response,
+		next: NextFunction
+	): Promise<void> => {
+		const { user } = req;
 
 		if (!user) {
 			const error = new AppError({ code: 401, message: "Unauthenticated!" });
