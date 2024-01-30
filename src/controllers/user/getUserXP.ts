@@ -18,7 +18,7 @@ export const getTotalUserXP = asyncWrapper(
 			return next(error);
 		}
 
-		const { completedTasks, xp } = user;
+		const { completedTasks } = user;
 		const totalUserXP = await filterUserXP(completedTasks);
 
 		res.json({ totalUserXP });

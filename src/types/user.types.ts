@@ -3,5 +3,4 @@ export interface IUser {
 	email: string;
 	password: string;
 	completedTasks: string[];
-	xp: number;
 }
