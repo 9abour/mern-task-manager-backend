@@ -1,6 +1,6 @@
-# Backend Server
+# MERN Task Manager (BACKEND)
 
-This repository contains the backend server for your project.
+This repository contains the backend server for Task Manager project.
 
 ## Prerequisites
 
