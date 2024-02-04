@@ -5,7 +5,7 @@ import {
 	handleValidationErrors,
 	validateSigninUserRules,
 	validateUserRules,
-} from "../../middleware/validation/validationMiddleware";
+} from "../../middleware/validationMiddleware";
 import { registerUser } from "../../controllers/user/registerUser";
 import { getUser } from "../../controllers/user/getUser";
 import { signinUser } from "../../controllers/user/signinUser";

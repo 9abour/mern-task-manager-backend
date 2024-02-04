@@ -8,19 +8,21 @@ import { removeCategory } from "../../controllers/categories/removeCategory";
 import {
 	handleValidationErrors,
 	validateAddCategoryRules,
-} from "../../middleware/validation/validationMiddleware";
+} from "../../middleware/validationMiddleware";
 import { verifyToken } from "../../middleware/verifyToken";
+import {checkUserRole} from "../../middleware/checkUserRole";
 
 const categoryRouter = Router();
 
 categoryRouter.post(
 	"/categories",
 	verifyToken,
+	checkUserRole,
 	validateAddCategoryRules,
 	handleValidationErrors,
 	addCategory
 );
-categoryRouter.delete("/categories/:categoryId", verifyToken, removeCategory);
+categoryRouter.delete("/categories/:categoryId", verifyToken, checkUserRole, removeCategory);
 categoryRouter.get("/categories", getAllCategories);
 categoryRouter.get("/categories/tasks/:categoryId", getCategoryTasks);
 categoryRouter.get("/categories/tasksCount/:categoryId", getCategoryTasksCount);

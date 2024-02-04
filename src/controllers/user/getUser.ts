@@ -36,13 +36,14 @@ export const getUser = asyncWrapper(
 			return next(error);
 		}
 
-		const { _id, name, completedTasks } = user;
+		const { _id, name, completedTasks, role } = user;
 
 		res.json({
 			_id,
 			name,
 			email: user.email,
 			completedTasks,
+			role
 		});
 	}
 );

@@ -1,14 +1,14 @@
 import { IVerifyTokenRequest } from "./../types/express.types";
 import jwt from "jsonwebtoken";
-import { Request, NextFunction, Response } from "express";
+import { NextFunction, Response } from "express";
 import AppError from "../helper/appError";
-import { IUser } from "../types/user.types";
+import {IUser} from "../types/user.types";
 
 /**
- * Verifies a token and returns the decoded user information.
- *
- * @param {string} token - The token to be verified.
- * @return {IUser} The decoded user information.
+ * Verify the token from the request header
+ * @param {IVerifyTokenRequest} req - The request object
+ * @param {Response} res - The response object
+ * @param {NextFunction} next - The next function
  */
 
 export const verifyToken = (

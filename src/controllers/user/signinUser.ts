@@ -20,11 +20,13 @@ export const signinUser = async (
 	res: Response,
 	next: NextFunction
 ) => {
-	const { email, password } = req.body as Pick<IUser, "email" | "password">;
+	const { email, password} = req.body as Pick<IUser, "email" | "password">;
+
 
 	const dataPayload = {
 		email,
 		password,
+		role: ""
 	};
 
 	const user = await User.findOne({ email });
@@ -46,6 +48,8 @@ export const signinUser = async (
 		});
 		return next(error);
 	}
+
+	dataPayload["role"] = user.role
 
 	const token = jwt.sign(dataPayload, secretKey);
 

@@ -6,8 +6,9 @@ import {
 	handleValidationErrors,
 	validateAddTaskRules,
 	validateRemoveTaskRules,
-} from "../../middleware/validation/validationMiddleware";
+} from "../../middleware/validationMiddleware";
 import { verifyToken } from "../../middleware/verifyToken";
+import {checkUserRole} from "../../middleware/checkUserRole";
 
 const taskRouter = Router();
 
@@ -15,6 +16,7 @@ taskRouter.get("/tasks", getAllTasks);
 taskRouter.post(
 	"/tasks",
 	verifyToken,
+	checkUserRole,
 	validateAddTaskRules,
 	handleValidationErrors,
 	addTask
@@ -22,6 +24,7 @@ taskRouter.post(
 taskRouter.delete(
 	"/tasks",
 	verifyToken,
+	checkUserRole,
 	validateRemoveTaskRules,
 	handleValidationErrors,
 	removeTask

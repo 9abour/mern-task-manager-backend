@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import { IUser } from "../types/user.types";
+import {RolesEnum} from "../enum/Roles.enum";
 
 const userSchema = new Schema(
 	{
@@ -20,6 +21,10 @@ const userSchema = new Schema(
 				type: String,
 			},
 		],
+		role: {
+			type: String,
+			default: RolesEnum.USER
+		}
 	},
 	{
 		versionKey: false,
